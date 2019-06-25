@@ -45,7 +45,7 @@ fs.createReadStream('./public/files/paymentTransactions.csv')
       if (checkTransactions(csvTransaction['Receipt No.']) == true) {
         //If Transaction exist then compare the contents
         console.log('Transaction exist ', csvTransaction['Receipt No.'])
-        compareTransaction(csvTransaction,csvTransaction['Receipt No.'])
+        compareTransaction(csvTransaction, csvTransaction['Receipt No.'])
         // console.log(csvTransaction)
       } else {
         //If Transaction DOES NOT exist then alert the user
@@ -85,15 +85,134 @@ function checkTransactions(ref) {
   });
 }
 
+//
+var finalTransaction = new Object();
+
 function compareTransaction(transaction, ref) {
   // console.log(transaction)
-    for (var i in parsedJSONfile) {
-      if (parsedJSONfile[i].ref == ref) {
-        console.log(transaction['Details'])
-      }else{
-        // console.log('Transaction did not found')
+  for (var i in parsedJSONfile) {
+    if (parsedJSONfile[i].ref == ref) {
+      var csvDetail = transaction['Details'];
+      var initiationTime = transaction['Initiation Time'];
+      var csvUnixTime = new Date(initiationTime).getTime() / 1000;
+      var jsonUnixTime = JSON.stringify(parsedJSONfile[i].time)
+      var res = csvDetail.match(/[^ ]* [^ ]*$/g);
+      var csvName = res[0];
+
+      //Get the payment source number
+      var csvPaymentSrcNo = csvDetail.replace(/[^0-9]/g,'');
+      var jsonPaymentSrcNo = parsedJSONfile[i].src.replace(/[^0-9]/g,'');
+
+      //Get the payment source
+      var csvPaymentSrc = csvDetail.replace(/ .*/, '');
+      var jsonPaymentSrc = parsedJSONfile[i].src;
+      if (jsonPaymentSrc.split(':')[0] == 'creditcard') {
+        jsonPaymentSrc = 'Credit'
+      } else if (jsonPaymentSrc.split(':')[0] == 'mpesa') {
+        jsonPaymentSrc = 'Mpesa'
       }
+      finalTransaction.ref = {
+        csv: ref,
+        json: parsedJSONfile[i].ref,
+        status: 'ok'
+      }
+
+      //Compare the names
+      if (parsedJSONfile[i].name == csvName) {
+        console.log('names match')
+        finalTransaction.name = {
+          csv: csvName,
+          json: parsedJSONfile[i].name,
+          status: 'ok'
+        }
+      } else {
+        console.log('names DO NOT match', parsedJSONfile[i].name, csvName)
+        finalTransaction.name = {
+          csv: csvName,
+          json: parsedJSONfile[i].name,
+          status: 'bad'
+        }
+      }
+
+      //Compare the Amount
+      if (parsedJSONfile[i].amount == transaction['Paid In']) {
+        finalTransaction.amount = {
+          csv: transaction['Paid In'],
+          json: parsedJSONfile[i].amount,
+          status: 'ok'
+        }
+      } else {
+        finalTransaction.amount = {
+          csv: transaction['Paid In'],
+          json: parsedJSONfile[i].amount,
+          status: 'bad'
+        }
+      }
+
+      //Compare the account
+      if (parsedJSONfile[i].acc == transaction['A/C No.']) {
+        finalTransaction.acc = {
+          csv: transaction['A/C No.'],
+          json: parsedJSONfile[i].acc,
+          status: 'ok'
+        }
+      } else {
+        finalTransaction.acc = {
+          csv: transaction['A/C No.'],
+          json: parsedJSONfile[i].acc,
+          status: 'bad'
+        }
+      }
+
+      //Compare the time
+      if (jsonUnixTime == csvUnixTime) {
+        finalTransaction.time = {
+          csv: csvUnixTime,
+          json: jsonUnixTime,
+          status: 'ok'
+        }
+      } else {
+        finalTransaction.time = {
+          csv: csvUnixTime,
+          json: jsonUnixTime,
+          status: 'bad'
+        }
+      }
+
+      //Compare the source
+      if (jsonPaymentSrc == csvPaymentSrc) {
+        finalTransaction.src = {
+          csv: csvPaymentSrc,
+          json: jsonPaymentSrc,
+          status: 'ok'
+        }
+      } else {
+        finalTransaction.src = {
+          csv: csvPaymentSrc,
+          json: jsonPaymentSrc,
+          status: 'bad'
+        }
+      }
+
+
+      //Compare the source number
+      if (jsonPaymentSrcNo == csvPaymentSrcNo) {
+        finalTransaction.srcNo = {
+          csv: csvPaymentSrcNo,
+          json: jsonPaymentSrcNo,
+          status: 'ok'
+        }
+      } else {
+        finalTransaction.srcNo = {
+          csv: csvPaymentSrcNo,
+          json: jsonPaymentSrcNo,
+          status: 'bad'
+        }
+      }
+    } else {
+      // console.log('Transaction did not found')
     }
+  }
 }
 
 // catch 404 and forward to err or handler
