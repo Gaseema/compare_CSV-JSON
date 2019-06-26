@@ -13,11 +13,6 @@ var finalTransaction = new Object();
 var allTransactions = [];
 var called = false;
 
-// exports.compare_get = function(req, res, next) {
-//   res.render('index', {
-//     title: 'Payment Auditor'
-//   })
-// }
 exports.compare_get = function(req, res, next) {
   if (called == true) {
     //Do not load the files again
@@ -37,15 +32,31 @@ exports.compare_get = function(req, res, next) {
           //First check whether the transaction exists
           if (checkTransactions(csvTransaction['Receipt No.']) == true) {
             //If Transaction exist then compare the contents
-            console.log('Transaction exist ', csvTransaction['Receipt No.'])
             compareTransaction(csvTransaction, csvTransaction['Receipt No.'])
-            // var stringified = JSON.stringify(finalTransaction)
             var stringified = JSON.stringify(finalTransaction)
             allTransactions.push(stringified)
-
           } else {
-            //If Transaction DOES NOT exist then alert the user
-            console.log('Transaction does not exist')
+            //If Transaction DOES NOT exist then alert the use
+
+            nonExistentTxs();
+
+            function nonExistentTxs() {
+              var csvDetail = csvTransaction['Details'];
+              var csvPaymentSrcNo = csvDetail.replace(/[^0-9]/g, '');
+              var csvPaymentSrc = csvDetail.replace(/ .*/, '');
+              var res = csvDetail.match(/[^ ]* [^ ]*$/g);
+              var csvName = res[0];
+
+              finalTransaction.ref = csvTransaction['Receipt No.'];
+              finalTransaction.name = csvName;
+              finalTransaction.amount = csvTransaction['Paid In'];
+              finalTransaction.time = csvTransaction['Initiation Time'];
+              finalTransaction.src = csvPaymentSrc;
+              finalTransaction.srcNo = csvPaymentSrcNo;
+              finalTransaction.confirmedTxs = false
+              var stringified = JSON.stringify(finalTransaction)
+              allTransactions.push(stringified)
+            }
           }
         }
         res.render('index', {
@@ -57,12 +68,14 @@ exports.compare_get = function(req, res, next) {
   }
 }
 
+//Compare two files (JSON & CSV) checking whether the transactions exist in one file or the other
 function checkTransactions(ref) {
   return parsedJSONfile.some(function(el) {
     return el.ref === ref;
   });
 }
 
+//If the transaction exist in the two files then copare the details
 function compareTransaction(transaction, ref) {
   for (var i in parsedJSONfile) {
     if (parsedJSONfile[i].ref == ref) {
@@ -88,11 +101,13 @@ function compareTransaction(transaction, ref) {
       } else if (jsonPaymentSrc.split(':')[0] == 'mpesa') {
         jsonPaymentSrc = 'Mpesa'
       }
+
       finalTransaction.ref = {
         csv: ref,
         json: parsedJSONfile[i].ref,
         status: 'ok'
       }
+      finalTransaction.confirmedTxs = true // Confirmed the transaction exist in both files
 
       //Compare the names
       if (parsedJSONfile[i].name == csvName) {
@@ -103,7 +118,7 @@ function compareTransaction(transaction, ref) {
           status: 'ok'
         }
       } else {
-          // Names DO NOT match
+        // Names DO NOT match
         finalTransaction.name = {
           csv: csvName,
           json: parsedJSONfile[i].name,
@@ -187,7 +202,7 @@ function compareTransaction(transaction, ref) {
         }
       }
     } else {
-      // console.log('Transaction did not found')
+      // console.log('Transaction was not found')
     }
   }
 }

@@ -10,88 +10,148 @@ html(lang='en')
     title Payment Auditor
   body
     for transaction, key in transactions
-      table.table.table-striped
-        thead
-          tr(style='background: #60D5D1; color: white; font-size: 1.5em;')
-            th(scope='col') #
-            th(scope='col') CSV
-            th(scope='col') JSON
-            th(scope='col') STATUS
-        tbody
-          for key in Object.keys(JSON.parse(transaction))
-            tr
-              if key == 'ref'
-                th(scope='row')
-                  | Reference
-                td #{JSON.parse(transaction).ref.csv}
-                td #{JSON.parse(transaction).ref.json}
-                td.status
-                  if JSON.parse(transaction).ref.status == 'bad'
-                    .transactionUnmatched unmatched
-                  else
-                    .transactionMatched matched
-              if key == 'name'
-                th(scope='row')
-                  | Name
-                td #{JSON.parse(transaction).name.csv}
-                td #{JSON.parse(transaction).name.json}
-                td.status
-                  if JSON.parse(transaction).name.status == 'bad'
-                    .transactionUnmatched unmatched
-                  else
-                    .transactionMatched matched
-              if key == 'amount'
-                th(scope='row')
-                  | Amount
-                td #{JSON.parse(transaction).amount.csv}
-                td #{JSON.parse(transaction).amount.json}
-                td.status
-                  if JSON.parse(transaction).amount.status == 'bad'
-                    .transactionUnmatched unmatched
-                  else
-                    .transactionMatched matched
-              if key == 'acc'
-                th(scope='row')
-                  | Account
-                td #{JSON.parse(transaction).acc.csv}
-                td #{JSON.parse(transaction).acc.json}
-                td.status
-                  if JSON.parse(transaction).acc.status == 'bad'
-                    .transactionUnmatched unmatched
-                  else
-                    .transactionMatched matched
-              if key == 'time'
-                th(scope='row')
-                  | Time
-                td #{JSON.parse(transaction).time.csv}
-                td #{JSON.parse(transaction).time.json}
-                td.status
-                  if JSON.parse(transaction).time.status == 'bad'
-                    .transactionUnmatched unmatched
-                  else
-                    .transactionMatched matched
-              if key == 'src'
-                th(scope='row')
-                  | Payment Source
-                td #{JSON.parse(transaction).src.csv}
-                td #{JSON.parse(transaction).src.json}
-                td.status
-                  if JSON.parse(transaction).src.status == 'bad'
-                    .transactionUnmatched unmatched
-                  else
-                    .transactionMatched matched
-              if key == 'srcNo'
-                th(scope='row')
-                  | Payment Source Number
-                td #{JSON.parse(transaction).srcNo.csv}
-                td #{JSON.parse(transaction).srcNo.json}
-                td.status
-                  if JSON.parse(transaction).srcNo.status == 'bad'
-                    .transactionUnmatched unmatched
-                  else
-                    .transactionMatched matched
+      if JSON.parse(transaction).confirmedTxs == true
+        table.table.table-striped
+          thead
+            tr(style='background: #60D5D1; color: white; font-size: 1.5em;')
+              th(scope='col') #
+              th(scope='col') CSV
+              th(scope='col') JSON
+              th(scope='col') STATUS
+          tbody
+            for key in Object.keys(JSON.parse(transaction))
+              tr
+                if key == 'ref'
+                  th(scope='row')
+                    | Reference
+                  td #{JSON.parse(transaction).ref.csv}
+                  td #{JSON.parse(transaction).ref.json}
+                  td.status
+                    if JSON.parse(transaction).ref.status == 'bad'
+                      .transactionUnmatched unmatched
+                    else
+                      .transactionMatched matched
+                if key == 'name'
+                  th(scope='row')
+                    | Name
+                  td #{JSON.parse(transaction).name.csv}
+                  td #{JSON.parse(transaction).name.json}
+                  td.status
+                    if JSON.parse(transaction).name.status == 'bad'
+                      .transactionUnmatched unmatched
+                    else
+                      .transactionMatched matched
+                if key == 'amount'
+                  th(scope='row')
+                    | Amount
+                  td #{JSON.parse(transaction).amount.csv}
+                  td #{JSON.parse(transaction).amount.json}
+                  td.status
+                    if JSON.parse(transaction).amount.status == 'bad'
+                      .transactionUnmatched unmatched
+                    else
+                      .transactionMatched matched
+                if key == 'acc'
+                  th(scope='row')
+                    | Account
+                  td #{JSON.parse(transaction).acc.csv}
+                  td #{JSON.parse(transaction).acc.json}
+                  td.status
+                    if JSON.parse(transaction).acc.status == 'bad'
+                      .transactionUnmatched unmatched
+                    else
+                      .transactionMatched matched
+                if key == 'time'
+                  th(scope='row')
+                    | Time
+                  td #{JSON.parse(transaction).time.csv}
+                  td #{JSON.parse(transaction).time.json}
+                  td.status
+                    if JSON.parse(transaction).time.status == 'bad'
+                      .transactionUnmatched unmatched
+                    else
+                      .transactionMatched matched
+                if key == 'src'
+                  th(scope='row')
+                    | Payment Source
+                  td #{JSON.parse(transaction).src.csv}
+                  td #{JSON.parse(transaction).src.json}
+                  td.status
+                    if JSON.parse(transaction).src.status == 'bad'
+                      .transactionUnmatched unmatched
+                    else
+                      .transactionMatched matched
+                if key == 'srcNo'
+                  th(scope='row')
+                    | Payment Source Number
+                  td #{JSON.parse(transaction).srcNo.csv}
+                  td #{JSON.parse(transaction).srcNo.json}
+                  td.status
+                    if JSON.parse(transaction).srcNo.status == 'bad'
+                      .transactionUnmatched unmatched
+                    else
+                      .transactionMatched matched
 
-
+      else
+        table.table.table-striped
+          thead
+            tr(style='background: red; color: white; font-size: 1.5em;')
+              th(scope='col') #
+              th(scope='col') CSV
+              th(scope='col') JSON
+              th(scope='col') STATUS
+          tbody
+            for key in Object.keys(JSON.parse(transaction))
+              tr
+                if key == 'ref'
+                  th(scope='row')
+                    | Reference
+                  td #{JSON.parse(transaction).ref}
+                  td Non-Existent
+                  td.status
+                    .transactionUnmatched unmatched
+                if key == 'name'
+                  th(scope='row')
+                    | Name
+                  td #{JSON.parse(transaction).name}
+                  td Non-Existent
+                  td.status
+                    .transactionUnmatched unmatched
+                if key == 'amount'
+                  th(scope='row')
+                    | Amount
+                  td #{JSON.parse(transaction).amount}
+                  td Non-Existent
+                  td.status
+                    .transactionUnmatched unmatched
+                if key == 'acc'
+                  th(scope='row')
+                    | Account
+                  td #{JSON.parse(transaction).acc.csv}
+                  td Non-Existent
+                  td.status
+                    .transactionUnmatched unmatched
+                if key == 'time'
+                  th(scope='row')
+                    | Time
+                  td #{JSON.parse(transaction).time}
+                  td Non-Existent
+                  td.status
+                    .transactionUnmatched unmatched
+                if key == 'src'
+                  th(scope='row')
+                    | Payment Source
+                  td #{JSON.parse(transaction).src}
+                  td Non-Existent
+                  td.status
+                    .transactionUnmatched unmatched
+                if key == 'srcNo'
+                  th(scope='row')
+                    | Payment Source Number
+                  td #{JSON.parse(transaction).srcNo}
+                  td Non-Existent
+                  td.status
+                    .transactionUnmatched unmatched
 
 
 
